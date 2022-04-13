@@ -1,0 +1,9 @@
+#!/bin/bash
+set -eu
+
+IMG=ghcr.io/tarrencev/starknet-scaffold:latest
+
+exec docker run -it --rm \
+        -v=`pwd`/..:`pwd`/.. \
+        -w=`pwd` \
+  "$IMG" $@
