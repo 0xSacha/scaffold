@@ -6,7 +6,7 @@ set -eu
 # `nile node`
 
 # options: localhost, goerli, mainnet
-network_type=$1
+network_type=goerli
 
 # Wipe old deployment record if it exists.
 rm $network_type.deployments.txt || echo 'Will create one...'
@@ -20,3 +20,8 @@ get_address () {
 # Deploy a contract
 Contract=$(poetry run nile deploy Contract \
     --alias Contract --network $network_type)
+
+# Deploy a contract
+balance=$(poetry run nile deploy balance \
+    --alias balance --network $network_type)
+

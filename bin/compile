@@ -1,4 +1,4 @@
 #!/bin/bash
 set -eu
 
-poetry run nile compile
+poetry run nile compile contracts/VaultLib.cairo

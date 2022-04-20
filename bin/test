@@ -9,4 +9,8 @@ if [ ! -f cache_hash ] || [ ! $(cat cache_hash) = $(git hash-object test/conftes
     git hash-object test/conftest.py > cache_hash
 fi
 
-poetry run pytest -n auto -s -W ignore::DeprecationWarning test/Contract_test.py
+#poetry run pytest -n auto -s -W ignore::DeprecationWarning test/Contract_test.py
+
+poetry run pytest -n auto -s -W ignore::DeprecationWarning test/vaultLib_test.py
+
+#poetry run pytest -n auto -s -W ignore::DeprecationWarning test/shareBaseToken_test.py

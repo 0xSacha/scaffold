@@ -2,7 +2,7 @@ import pytest
 import asyncio
 
 @pytest.mark.asyncio
-async def test_contract(ctx_factory):
+async def test_maki(ctx_factory):
     ctx = ctx_factory()
 
     await ctx.execute(
@@ -14,5 +14,5 @@ async def test_contract(ctx_factory):
 
     initialized = await ctx.contract.initialized().call()
 
-    assert initialized.result.res == 1
+    assert initialized.result.res == 2
 

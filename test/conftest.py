@@ -30,7 +30,7 @@ async def build_cache():
     # Define contracts
     defs = SimpleNamespace(
         account=compile("Account.cairo"),
-        contract=compile("Contract.cairo")
+        contract=compile("VaultLib.cairo")
     )
 
     signers = dict(
@@ -56,7 +56,8 @@ async def build_cache():
 
     # Deploy base contracts
     contract = await starknet.deploy(
-        contract_def=defs.contract
+        contract_def=defs.contract,
+        constructor_calldata=[55, 64, 25115, 444, 664552, 50, 12,6], 
     )
 
     consts = SimpleNamespace(
@@ -88,6 +89,15 @@ def compile(path):
         files=[os.path.join(CONTRACT_SRC, path)],
         debug_info=True,
     )
+
+MAX_LEN_FELT = 31
+
+
+def str_to_felt(text):
+    if len(text) > MAX_LEN_FELT:
+        raise Exception("Text length too long to convert to felt.")
+
+    return int.from_bytes(text.encode(), "big")
 
 
 def get_block_timestamp(starknet_state):
