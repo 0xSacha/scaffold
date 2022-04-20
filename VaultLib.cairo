@@ -121,17 +121,7 @@ const TRUE = 1
 # Getters 
 #
 
-@view
-func getContractAddress{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }() -> (res: felt):
-    let (res:felt) = get_contract_address()
-    return(res)
-end
 
-@view
 func isTrackedAsset{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
@@ -144,36 +134,35 @@ func isTrackedAsset{
         return(TRUE)
 end
 
-@view
 func getTrackedAssets{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }() -> (trackedAssets__len:felt, trackedAssets_: felt*):
     alloc_locals
-    let (trackedAssets__len:felt) = trackedAssetsLength.read()
+    let (trackedAssets_len_:Uint256) = trackedAssetsLength.read()
     let (local trackedAssets_ : felt*) = alloc()
-    completeAssetTab(trackedAssets__len, trackedAssets_, 0)
-    return(trackedAssets__len, trackedAssets_)
+    completeAssetTab(trackedAssets_len_, trackedAssets_, 0)
+    return(trackedAssets_len_, trackedAssets_)
 end
-
 
 func completeAssetTab{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(trackedAssets_len_:felt, trackedAssets_:felt*, index:felt) -> ():
-
-    if trackedAssets_len_ == 0:
+    }(trackedAssets_len_:Uint256, trackedAssets_:felt*, index:felt) -> ():
+    let (isEmpty) = uint256_eq(trackedAssets_len_, Uint256(0,0))
+    if isEmpty == 1:
         return ()
     end
-    let (trackedAsset_:felt) = trackedAssets.read(index)
+    let (indexUint256_:Uint256) = felt_to_uint256(index)
+    let (trackedAsset_:felt) = trackedAssets.read(indexUint256_)
 
     assert [trackedAssets_ + index] = trackedAsset_
     
 
     let new_index_:felt = index + 1
-    let new_trackedAssets_len_:felt = trackedAssets_len_ -1
+    let (new_trackedAssets_len_:Uint256) = uint256_checked_sub_le(trackedAssets_len_, Uint256(1,0))
 
     return completeAssetTab(
         trackedAssets_len_=new_trackedAssets_len_,
@@ -182,7 +171,7 @@ func completeAssetTab{
     )
 end
 
-@view
+
 func getPositionsLimit{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
@@ -221,9 +210,9 @@ func getTotalSupply{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }() -> (totalSupply_: Uint256):
-    let (totalSupply_: Uint256) = totalSupply()
-    return (totalSupply_)
+    }() -> (totalSupply: Uint256):
+    let (totalSupply: Uint256) = totalSupply()
+    return (totalSupply)
 end
 
 @view
@@ -231,9 +220,9 @@ func getSharesTotalSupply{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }() -> (sharesTotalSupply_: Uint256):
-    let (sharesTotalSupply_: Uint256) = sharesTotalSupply()
-    return (sharesTotalSupply_)
+    }() -> (sharesTotalSupply: Uint256):
+    let (sharesTotalSupply: Uint256) = sharesTotalSupply()
+    return (sharesTotalSupply)
 end
 
 
@@ -244,9 +233,9 @@ func getName{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (name_: felt):
-    let (name_) = name()
-    return (name_)
+    }() -> (name: felt):
+    let (name) = name()
+    return (name)
 end
 
 @view
@@ -254,9 +243,9 @@ func getSymbol{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (symbol_: felt):
-    let (symbol_) = symbol()
-    return (symbol_)
+    }() -> (symbol: felt):
+    let (symbol) = symbol()
+    return (symbol)
 end
 
 @view
@@ -287,9 +276,9 @@ func getSharesBalance{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(tokenId: Uint256) -> (sharesBalance_: Uint256):
-    let (sharesBalance_: Uint256) = sharesBalance(tokenId)
-    return (sharesBalance_)
+    }(tokenId: Uint256) -> (sharesBalance: Uint256):
+    let (sharesBalance: Uint256) = sharesBalance(tokenId)
+    return (sharesBalance)
 end
 
 @view
@@ -297,9 +286,9 @@ func getSharePricePurchased{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(tokenId: Uint256) -> (sharePricePurchased_: Uint256):
-    let (sharePricePurchased_: Uint256) = sharePricePurchased(tokenId)
-    return (sharePricePurchased_)
+    }(tokenId: Uint256) -> (sharePricePurchased: Uint256):
+    let (sharePricePurchased: Uint256) = sharePricePurchased(tokenId)
+    return (sharePricePurchased)
 end
 
 @view
@@ -307,9 +296,9 @@ func getMintedBlock{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(tokenId: Uint256) -> (mintedBlock_: felt):
-    let (mintedBlock_: felt) = mintedBlock(tokenId)
-    return (mintedBlock_)
+    }(tokenId: Uint256) -> (mintedBlock: felt):
+    let (mintedBlock: felt) = mintedBlock(tokenId)
+    return (mintedBlock)
 end
 
 #
@@ -330,18 +319,6 @@ func constructor{
     init(_comptrolleur, _positionLimitAmount)
     return ()
 end
-
-@external
-func setComptrolleur{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
-        range_check_ptr
-    }() :
-    let (caller: felt) = get_caller_address()
-    comptrolleur.write(caller)
-    return ()
-end
-
 
 @external
 func receiveValidatedVaultAction{
@@ -549,11 +526,11 @@ func __addTrackedAsset{
         assert isTrackedAsset_ = FALSE
     end
     __validatePositionsLimit()
-    let (currentTrackedAssetsLength: felt) = trackedAssetsLength.read()
+    let (currentTrackedAssetsLength: Uint256) = trackedAssetsLength.read()
     assetToIsTracked.write(_asset,TRUE)
     trackedAssets.write(currentTrackedAssetsLength,_asset)
     assetToId.write(_asset,currentTrackedAssetsLength)
-    let newTrackedAssetsLength_: felt = currentTrackedAssetsLength + 1
+    let (newTrackedAssetsLength_: Uint256) = uint256_checked_add(currentTrackedAssetsLength,Uint256(1,0))
     trackedAssetsLength.write(newTrackedAssetsLength_)
     TrackedAssetAdded.emit(_asset)
     return ()
@@ -570,14 +547,15 @@ func __removeTrackedAsset{
         assert isTrackedAsset_ = TRUE
     end
     assetToIsTracked.write(_asset,FALSE)
-    let (currentTrackedAssetsLength_: felt) = trackedAssetsLength.read()
-    let (id:felt) = assetToId.read(_asset)
-    let res:felt = currentTrackedAssetsLength_- id
-    let newTrackedAssetsLength_: felt = currentTrackedAssetsLength_ - 1
-    if res == 1: 
+    let (currentTrackedAssetsLength_: Uint256) = trackedAssetsLength.read()
+    let (id:Uint256) = assetToId.read(_asset)
+    let (res:Uint256) = uint256_checked_sub_le(currentTrackedAssetsLength_, id)
+    let (newTrackedAssetsLength_: Uint256) = uint256_checked_sub_le(currentTrackedAssetsLength_,Uint256(1,0))
+    let (isEqual_) = uint256_eq(res, Uint256(1,0))
+    if isEqual_ == TRUE: 
     trackedAssets.write(id, 0)
     else:
-        let lastAssetId:felt = newTrackedAssetsLength_
+        let lastAssetId:Uint256 = newTrackedAssetsLength_
         let (lastAsset:felt) = trackedAssets.read(lastAssetId)
         trackedAssets.write(lastAssetId, 0)
         trackedAssets.write(id, lastAsset)
@@ -596,9 +574,10 @@ func __validatePositionsLimit{
     }():
     alloc_locals
     let (positionLimit_:Uint256) = getPositionsLimit()
-    let (trackedAssetsLength_:felt) = trackedAssetsLength.read()
-    let (trackedAssetsLengthUint:Uint256) = felt_to_uint256(trackedAssetsLength_)
-    let (res__) = uint256_le(trackedAssetsLengthUint, positionLimit_)
+    let (trackedAssetsLength_:Uint256) = trackedAssetsLength.read()
+    let (activeExternalPositionsLength_:Uint256) = activeExternalPositionsLength.read()
+    let (res_:Uint256) = uint256_checked_add(trackedAssetsLength_, activeExternalPositionsLength_)
+    let (res__) = uint256_le(res_, positionLimit_)
     with_attr error_message("__validatePositionsLimit: Limit exceeded"):
         assert res__ = TRUE
     end

@@ -13,15 +13,141 @@ async def test_contract(ctx_factory):
 
     assert symbol1.result.symbol == 64
 
-    migrator1 = await ctx.contract.getMigrator().call()
-    print(migrator1.result.migratorAd)
+    
+    
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'setComptrolleur',
+        []
+    )
+
+    _aliceAddress = await ctx.alice.get_address().call()
+
+    aliceAddress = _aliceAddress.result.res
+
+    cptAddress = await ctx.contract.getComptrolleur().call()
+    assert cptAddress.result.comptrolleurAd == aliceAddress
+
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'receiveValidatedVaultAction',
+        [2, 1, 684862546316813541813]
+    )
+
+    istracked = await ctx.contract.isTrackedAsset(684862546316813541813).call()
+    assert istracked.result.isTrackedAsset_ == 1
+
+    getTrackedAssets = await ctx.contract.getTrackedAssets().call()
+    assert getTrackedAssets.result.trackedAssets_ == [684862546316813541813]
+    
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'receiveValidatedVaultAction',
+        [2, 1, 684862546316813541814]
+    )
+
+    getTrackedAssets = await ctx.contract.getTrackedAssets().call()
+    assert getTrackedAssets.result.trackedAssets_ == [684862546316813541813,684862546316813541814]
+
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'receiveValidatedVaultAction',
+        [3, 1, 684862546316813541813]
+    )
+
+    getTrackedAssets = await ctx.contract.getTrackedAssets().call()
+    assert getTrackedAssets.result.trackedAssets_ == [684862546316813541814]
+
+    _bobAddress = await ctx.bob.get_address().call()
+    bobAddress = _bobAddress.result.res
+
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'receiveValidatedVaultAction',
+        [1, 3, bobAddress, 566, 1800]
+    )
+
+    getTotalSupply = await ctx.contract.getTotalSupply().call()
+    assert getTotalSupply.result.totalSupply_ == (1,0)
+
+    getSharesTotalSupply = await ctx.contract.getSharesTotalSupply().call()
+    assert getSharesTotalSupply.result.sharesTotalSupply_ == (566,0)
+
+    _getSharePricePurchased = await ctx.contract.getSharePricePurchased((0,0)).call()
+    assert _getSharePricePurchased.result.sharePricePurchased_ == (1800,0)
+
+    
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'receiveValidatedVaultAction',
+        [0, 2, 0, 200]
+    )
+
+    getTotalSupply = await ctx.contract.getTotalSupply().call()
+    assert getTotalSupply.result.totalSupply_ == (1,0)
+
+    getSharesTotalSupply = await ctx.contract.getSharesTotalSupply().call()
+    assert getSharesTotalSupply.result.sharesTotalSupply_ == (366,0)
+
+    
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'receiveValidatedVaultAction',
+        [0, 2, 0, 366]
+    )
+
+    getTotalSupply = await ctx.contract.getTotalSupply().call()
+    assert getTotalSupply.result.totalSupply_ == (0,0)
+
+    getSharesTotalSupply = await ctx.contract.getSharesTotalSupply().call()
+    assert getSharesTotalSupply.result.sharesTotalSupply_ == (0,0)
+
+
+    #VAULT FEEDING
+
+    _contractAddress = await ctx.contract.getContractAddress().call()
+    contractAddress = _contractAddress.result.res
+
+
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'receiveValidatedVaultAction',
+        [1, 3, contractAddress, 566, 1800]
+    )
+
+    getTotalSupply = await ctx.contract.getTotalSupply().call()
+    assert getTotalSupply.result.totalSupply_ == (1,0)
+
+    getSharesTotalSupply = await ctx.contract.getSharesTotalSupply().call()
+    assert getSharesTotalSupply.result.sharesTotalSupply_ == (566,0)
+
+    await ctx.execute(
+        "alice",
+        ctx.contract.contract_address,
+        'receiveValidatedVaultAction',
+        [4, 3, contractAddress, bob, 0]
+    )
+
+
+
 
     # await ctx.execute(
     #     "alice",
     #     ctx.contract.contract_address,
-    #     'initialize',
-    #     [111516399724901,2]
+    #     'receiveValidatedVaultAction',
+    #     [1, 3, bobAddress, 566, 1800]
     # )
+
+
+
 
     # name2 = await ctx.contract.name().call()
 

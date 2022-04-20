@@ -57,7 +57,7 @@ async def build_cache():
     # Deploy base contracts
     contract = await starknet.deploy(
         contract_def=defs.contract,
-        constructor_calldata=[55, 64, 25115, 444, 664552, 50, 12,6], 
+        constructor_calldata=[55, 64, 84, 1, 3], 
     )
 
     consts = SimpleNamespace(
